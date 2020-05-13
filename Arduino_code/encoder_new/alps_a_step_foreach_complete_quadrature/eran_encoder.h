@@ -27,9 +27,11 @@ private:
   
   uint8_t transitionEvent = NO_TRANSITION_EVENT;
   uint8_t transitionEventIndex = 0;
-    
-  uint8_t cwTransitions[4]  = {8, 0, 15, 7};
-  uint8_t ccwTransitions[4] = {0, 8, 7, 15}; 
+
+                            // A0  B0   A7   B7
+                            // B0  A0   B7   A7
+  uint8_t cwTransitions[4]  = {8, 0, 15,  7};
+  uint8_t ccwTransitions[4] = {0, 8,  7, 15}; 
 
   uint8_t CHA, CHB;
 

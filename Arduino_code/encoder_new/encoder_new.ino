@@ -1,5 +1,5 @@
 // SERIAL STUFF ////////////////////////////////////////////////////////
-bool bSendSerial = false;
+bool bSendSerial = true;
 
 // ENCODER STUFF /////////////////////////////////////////////////////// 
 // Encoder code is inspired by the work of eran.io
@@ -9,15 +9,13 @@ bool bSendSerial = false;
 #include "eran_encoder.h"
 
 EranEncoder encoder;
-int eValue, ePrevValue;
-
 
 void cwStep(void){
-  if( bSendSerial) Serial.write( '0' );
+  if( bSendSerial) { Serial.print( "CW halfStep: "); Serial.println( encoder.getCounter() );}
 }
 
 void ccwStep(void){
-  if( bSendSerial) Serial.write( '1' );
+  if( bSendSerial) { Serial.print( "CCW halfStep: "); Serial.println( encoder.getCounter() );}
 }
 
 // BUTTON STUFF ////////////////////////////////////////////////////////
@@ -27,7 +25,7 @@ void ccwStep(void){
 
 #include "ButtonDebounce.h"
 
-ButtonDebounce push(7, 50);
+ButtonDebounce push(10, 50);
 
 void pushChanged(int state){
   if( !state )
@@ -36,62 +34,23 @@ void pushChanged(int state){
   }
 }
 
-ButtonDebounce shuffle(8, 50);
-
-void shuffleChanged(int state){
-  if( !state )
-  {
-    if( bSendSerial) Serial.write('r');
-  }
-}
-
-ButtonDebounce back(9, 50);
-
-void backChanged(int state){
-  if( !state )
-  {
-    if( bSendSerial) Serial.write('l');
-  }
-}
-
-
 // SETUP ///////////////////////////////////////////////////////////////
 void setup()
 {
   Serial.begin(9600);
-  encoder.init(2,3);
+  while( !Serial ) {};
+  encoder.init(0,1);
   encoder.setCallbackCW(cwStep);
   encoder.setCallbackCCW(ccwStep);
 
   push.setCallback(pushChanged);
-  shuffle.setCallback(shuffleChanged);
-  back.setCallback(backChanged);
 }
 
 // LOOP ////////////////////////////////////////////////////////////////
 void loop() 
-{
-  getSerialData();
-  
+{  
   encoder.update();
   push.update();
-  shuffle.update();
-  back.update();
 
   delay(5); 
-}
-
-// SERIAL UTILITY FUNC /////////////////////////////////////////////////
-void getSerialData()
-{
-  if(Serial.available()) {
-    char user_input = Serial.read(); // Read user input and trigger appropriate function
-      
-    if (user_input =='1')  {
-       bSendSerial = true;
-    }
-    else if(user_input =='0')  {
-      bSendSerial = false;
-    }
-  }
 }
